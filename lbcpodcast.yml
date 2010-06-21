@@ -1,0 +1,21 @@
+# rename this file to LBC.yml and put a : in front of "name" if
+# you want to use yaml like in old versions of Catalyst
+name: LBC Podcast Application
+
+# Base podcast URL
+base_url: http://lbc.audioagain.com/podcast.php?channel=
+
+# Podcast subscription credentials
+credentials:
+  username: 
+  password: 
+
+# Channels
+channels:
+  sa: substeve
+  nf: subnick
+  jo: subjames
+  jw: jameswhale
+  jb: subjeni
+  jm: subelliot
+  ph: petriehosken

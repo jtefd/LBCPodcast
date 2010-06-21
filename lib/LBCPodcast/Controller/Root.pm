@@ -2,6 +2,8 @@ package LBCPodcast::Controller::Root;
 use Moose;
 use namespace::autoclean;
 
+use LWP::UserAgent;
+
 BEGIN { extends 'Catalyst::Controller' }
 
 #
@@ -20,38 +22,39 @@ LBCPodcast::Controller::Root - Root Controller for LBCPodcast
 
 =head1 METHODS
 
-=head2 index
-
-The root page (/)
-
 =cut
 
-sub index :Path :Args(0) {
-    my ( $self, $c ) = @_;
+sub ShowFeed :Chained('/') :PathPart('') :Args(1) {
+	my ( $self, $c, $host ) = @_;
 
-    # Hello World
-    $c->response->body( $c->welcome_message );
+	my $base_url = $c->config->{base_url};
+
+	if (defined(my $channel = $c->config->{channels}->{$host})) {
+		$base_url .= $channel;
+
+		$c->response->body( $base_url );
+
+		my $username = $c->config->{credentials}->{username};
+		my $password = $c->config->{credentials}->{password};
+
+		my $browser = LWP::UserAgent->new();
+
+		$browser->credentials(
+			'lbc.audioagain.com:80',
+			'AudioAgain Login',
+			$username => $password
+		);
+
+		my $response = $browser->get($base_url);
+
+		$c->response->body( $response->content );
+	}
+	else {
+		$c->response->status(404);
+		$c->response->body("$host is not a valid LBC podcast host.");
+	}
+
 }
-
-=head2 default
-
-Standard 404 error page
-
-=cut
-
-sub default :Path {
-    my ( $self, $c ) = @_;
-    $c->response->body( 'Page not found' );
-    $c->response->status(404);
-}
-
-=head2 end
-
-Attempt to render a view, if needed.
-
-=cut
-
-sub end : ActionClass('RenderView') {}
 
 =head1 AUTHOR
 
